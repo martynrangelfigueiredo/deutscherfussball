@@ -28,11 +28,12 @@ jobs:
         run: |
           test -f "index.html"
           test -f "CNAME"
+          test -f "rom/ISSD - Deutscher Fussball 2026-27 Deluxe.smc"
+          test -f "rom/ISSD - Deutscher Fussball 2026-27 Deluxe.zip"
           mkdir -p _site/rom
           cp index.html CNAME .nojekyll _site/
-          if [ -d "rom" ]; then
-            cp -r rom/. _site/rom/ 2>/dev/null || true
-          fi
+          cp "rom/ISSD - Deutscher Fussball 2026-27 Deluxe.smc" "_site/rom/ISSD - Deutscher Fussball 2026-27 Deluxe.smc"
+          cp "rom/ISSD - Deutscher Fussball 2026-27 Deluxe.zip" "_site/rom/ISSD - Deutscher Fussball 2026-27 Deluxe.zip"
           echo "Pacote de produção preparado com sucesso!"
 
       - name: Setup Pages

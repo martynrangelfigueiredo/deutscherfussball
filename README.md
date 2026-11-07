@@ -46,7 +46,8 @@ deutscherfussball/
 │   └── deploy.yml                                      # Pipeline CI/CD para o GitHub Pages
 ├── rom/
 │   ├── ISSD - Deutscher Fussball 2026-27 Deluxe.smc    # ROM do jogo (4.00 MB)
-│   └── ISSD - Deutscher Fussball 2026-27 Deluxe.zip    # ROM compactada para download
+│   ├── ISSD - Deutscher Fussball 2026-27 Deluxe.zip    # ROM compactada para download (1.99 MB)
+│   └── ISSD - Deutscher Fussball 2026-27 Deluxe.ips    # Patch IPS original (2.12 MB)
 ├── index.html                                          # Aplicação web single-page (UI + Emulador + Gravador)
 ├── server.js                                           # Servidor HTTP local zero-dependências
 ├── package.json                                        # Metadados e script de execução local
