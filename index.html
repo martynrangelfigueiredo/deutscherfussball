@@ -955,7 +955,8 @@
     window.EJS_defaultOptions = {
       "snes9x_audio_interpolation": "linear",
       "snes9x_overclock_cycles": "light",
-      "snes9x_reduce_sprite_flicker": "enabled"
+      "snes9x_reduce_sprite_flicker": "enabled",
+      "snes9x_block_invalid_vram_access": "disabled"
     };
 
     // Ajustes de máxima performance no retroarch.cfg, montagem antecipada do <canvas> 4:3 e proteção dos controles mobile
@@ -1045,15 +1046,58 @@
           emu.gameManager.setVariable("snes9x_audio_interpolation", "linear");
           emu.gameManager.setVariable("snes9x_overclock_cycles", "light");
           emu.gameManager.setVariable("snes9x_reduce_sprite_flicker", "enabled");
+          emu.gameManager.setVariable("snes9x_block_invalid_vram_access", "disabled");
         }
 
         const AL = emu && emu.Module && emu.Module.AL;
         const alCtx = AL && AL.currentCtx;
         const audioCtx = alCtx && alCtx.audioCtx;
 
-        // 2. Ajusta o lookahead do OpenAL para 55ms (equilíbrio ideal entre baixa latência e zero underrun/AL_STOPPED)
-        if (AL) {
-          AL.QUEUE_LOOKAHEAD = 0.055;
+        // 2. Correção profunda do driver OpenAL do Emscripten (elimina micro-travamentos de espera do setInterval de 25ms e repetição de buffers)
+        if (AL && !AL._deutscheZeroStutterPatched) {
+          AL._deutscheZeroStutterPatched = true;
+          AL.QUEUE_LOOKAHEAD = 0.065;
+
+          // Atualiza src.bufsProcessed no exato microssegundo em que o RetroArch consulta AL_BUFFERS_PROCESSED (4118) ou AL_SOURCE_STATE (4112)
+          if (typeof AL.getSourceParam === "function") {
+            const origGetSourceParam = AL.getSourceParam.bind(AL);
+            AL.getSourceParam = function (funcname, sourceId, param) {
+              if ((param === 4118 || param === 4112) && AL.currentCtx && AL.currentCtx.sources && AL.currentCtx.sources[sourceId]) {
+                AL.updateSourceTime(AL.currentCtx.sources[sourceId]);
+              }
+              return origGetSourceParam(funcname, sourceId, param);
+            };
+          }
+
+          // Corrige bug do Emscripten onde alSourcePlay (4114) após AL_STOPPED (4116) zerava src.bufsProcessed = 0 e repetia buffers já tocados
+          if (typeof AL.setSourceState === "function") {
+            const origSetSourceState = AL.setSourceState.bind(AL);
+            AL.setSourceState = function (src, state) {
+              if (state === 4114 && src && src.state === 4116 && src.bufQueue && src.bufsProcessed > 0 && src.bufsProcessed < src.bufQueue.length) {
+                const keepProcessed = src.bufsProcessed;
+                AL.stopSourceAudio(src);
+                src.state = 4114;
+                src.bufsProcessed = keepProcessed;
+                src.bufOffset = 0;
+                src.bufStartTime = Number.NEGATIVE_INFINITY;
+                AL.scheduleSourceAudio(src);
+                return;
+              }
+              return origSetSourceState(src, state);
+            };
+          }
+
+          // Enquanto o AudioContext estiver suspenso antes do 1º clique/toque, avança o relógio sem alocar AudioBufferSourceNodes fantasmas no WebAudio
+          if (typeof AL.scheduleSourceAudio === "function") {
+            const origScheduleSourceAudio = AL.scheduleSourceAudio.bind(AL);
+            AL.scheduleSourceAudio = function (src, lookahead) {
+              if (src && src.context && src.context.audioCtx && src.context.audioCtx.state !== "running") {
+                AL.updateSourceTime(src);
+                return;
+              }
+              return origScheduleSourceAudio(src, lookahead);
+            };
+          }
         }
 
         // 3. Destrava o clock de áudio do OpenAL caso o navegador bloqueie Autoplay antes do 1º clique/toque,
