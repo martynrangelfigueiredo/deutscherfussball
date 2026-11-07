@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>ISSD - Deutscher Fussball 2026/27 Deluxe | Jogar Online (SNES)</title>
+  <meta name="description" content="Jogue International Superstar Soccer Deluxe - Deutscher Fussball 2026-27 Deluxe diretamente no navegador em 60 FPS." />
+  <meta name="theme-color" content="#2d1457" />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://deutscherfussball.martynfigueiredo.com/" />
+  <meta property="og:title" content="ISSD - Deutscher Fussball 2026/27 Deluxe (SNES)" />
+  <meta property="og:description" content="Jogue International Superstar Soccer Deluxe - Deutscher Fussball 2026-27 Deluxe direto no navegador!" />
+
+  <!-- Performance: Preconnect & Preload Emulator Loader (evita duplicação de download da ROM na RAM) -->
+  <link rel="preconnect" href="https://cdn.emulatorjs.org" crossorigin />
+  <link rel="dns-prefetch" href="https://cdn.emulatorjs.org" />
+  <link rel="preload" href="https://cdn.emulatorjs.org/stable/data/loader.js" as="script" />
+
+  <!-- Favicon SVG inline (Tema Roxo Vibrante + Faixas Alemanha + Bola) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%236d28d9'/%3E%3Cstop offset='100%25' stop-color='%233b0764'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23bg)' stroke='%23c084fc' stroke-width='4'/%3E%3Cpath d='M8 18h48v9H8z' fill='%232e1065'/%3E%3Cpath d='M8 27h48v10H8z' fill='%23ff2a54'/%3E%3Cpath d='M8 37h48v9H8z' fill='%23ffb800'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%23ffffff' stroke='%234c1d95' stroke-width='3.5'/%3E%3Cpolygon points='32,24 37,28 35,34 29,34 27,28' fill='%234c1d95'/%3E%3C/svg%3E" />
+
+  <style>
+    :root {
+      --app-height: 100dvh;
+      --bg-deep: #241046;
+      --bg-mid: #31175e;
+      --bg-panel: rgba(43, 19, 82, 0.97);
+      --border-cyber: rgba(192, 132, 252, 0.5);
+      --border-subtle: rgba(233, 213, 255, 0.2);
+      --text: #faf5ff;
+      --muted: #e9d5ff;
+      --neon-purple: #c084fc;
+      --neon-red: #ff2a54;
+      --neon-green: #00e575;
+      --neon-gold: #ffb800;
+      --neon-cyan: #00f0ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-deep);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    /* Container fixo que ocupa a altura visível real do dispositivo (otimizado com zero overdraw de camadas extras) */
+    .app-shell {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: var(--app-height, 100dvh);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background-color: var(--bg-deep);
+      /* Estética Retro-Grid / Synth-Purple ultraleve na GPU */
+      background-image:
+        linear-gradient(to right, rgba(192, 132, 252, 0.14) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(192, 132, 252, 0.12) 1px, transparent 1px),
+        linear-gradient(180deg, #321660 0%, #241046 55%, #1b0b36 100%);
+      background-size:
+        40px 40px,
+        40px 40px,
+        100% 100%;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      contain: strict;
+    }
+
+    /* Barra superior Neo-Retro Roxa (sem backdrop-filter para máxima performance de GPU em 60 FPS) */
+    .topbar {
+      height: 48px;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 12px;
+      background: linear-gradient(90deg, #30145c, #421a7a);
+      border-bottom: 2px solid var(--neon-purple);
+      box-shadow: 0 4px 16px rgba(109, 40, 217, 0.45);
+      z-index: 40;
+      position: relative;
+      contain: layout style;
+    }
+
+    .topbar::after {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        #4c1d95 0% 33.3%,
+        var(--neon-red) 33.3% 66.6%,
+        var(--neon-gold) 66.6% 100%
+      );
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .badge-de {
+      display: inline-flex;
+      flex-direction: column;
+      width: 22px;
+      height: 15px;
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 2px 2px 0 rgba(192, 132, 252, 0.7);
+      flex-shrink: 0;
+    }
+
+    .badge-de span:nth-child(1) { flex: 1; background: #2e1065; }
+    .badge-de span:nth-child(2) { flex: 1; background: var(--neon-red); }
+    .badge-de span:nth-child(3) { flex: 1; background: var(--neon-gold); }
+
+    .brand-title {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 900;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow:
+        0 1px 0 #3b0764,
+        0 0 12px rgba(192, 132, 252, 0.85);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tag-cyber {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--neon-gold);
+      background: rgba(255, 184, 0, 0.16);
+      border: 1px solid rgba(255, 184, 0, 0.55);
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    /* Botões estilo Retro-HUD Roxo */
+    .btn {
+      appearance: none;
+      text-decoration: none;
+      background: #3b1970;
+      color: var(--text);
+      border: 1px solid rgba(216, 180, 254, 0.45);
+      box-shadow: 2px 2px 0 rgba(192, 132, 252, 0.65);
+      border-radius: 6px;
+      padding: 6px 11px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn:hover {
+      background: #4c228f;
+      border-color: var(--neon-cyan);
+      box-shadow: 2px 2px 0 var(--neon-cyan);
+    }
+
+    .btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--neon-purple);
+    }
+
+    .btn-menu-trigger {
+      background: linear-gradient(135deg, #6d28d9, #4c1d95);
+      border-color: #d8b4fe;
+      color: #ffffff;
+      box-shadow: 2px 2px 0 rgba(255, 184, 0, 0.8);
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
+
+    .btn-menu-trigger.open {
+      background: linear-gradient(135deg, #ff2a54, #9333ea);
+      border-color: #ffffff;
+      box-shadow: 2px 2px 0 var(--neon-cyan);
+    }
+
+    /* Menu Dropdown Unificado com todas as opções */
+    .menu-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 280px;
+      background: #2b1352;
+      border: 2px solid var(--neon-purple);
+      border-radius: 8px;
+      box-shadow:
+        6px 6px 0 rgba(109, 40, 217, 0.65),
+        0 18px 45px rgba(18, 5, 38, 0.9);
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 80;
+    }
+
+    .menu-dropdown.open {
+      display: flex;
+      animation: menuFadeIn 0.14s ease-out;
+    }
+
+    @keyframes menuFadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .menu-header-label {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #d8b4fe;
+      padding: 4px 6px 2px;
+      border-bottom: 1px solid rgba(216, 180, 254, 0.2);
+      margin-bottom: 2px;
+    }
+
+    .menu-item {
+      width: 100%;
+      justify-content: flex-start;
+      padding: 9px 11px;
+      font-size: 0.78rem;
+      text-align: left;
+      border-radius: 6px;
+    }
+
+    .menu-item-icon {
+      width: 20px;
+      text-align: center;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .menu-item-badge {
+      margin-left: auto;
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #f3e8ff;
+    }
+
+    .btn-record-quick {
+      display: none;
+      padding: 5px 10px;
+      font-size: 0.74rem;
+    }
+
+    .btn-record-quick.recording {
+      display: inline-flex;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, rgba(0, 229, 117, 0.24), rgba(0, 155, 58, 0.35));
+      border-color: var(--neon-green);
+      color: #d1fae5;
+      box-shadow: 2px 2px 0 rgba(0, 229, 117, 0.6);
+    }
+
+    .btn-primary:hover {
+      background: rgba(0, 229, 117, 0.36);
+      border-color: #6ee7b7;
+      box-shadow: 2px 2px 0 var(--neon-green);
+    }
+
+    .btn-record {
+      background: linear-gradient(135deg, rgba(255, 42, 84, 0.26), rgba(153, 27, 27, 0.36));
+      border-color: var(--neon-red);
+      color: #ffe4e6;
+      box-shadow: 2px 2px 0 rgba(255, 42, 84, 0.7);
+    }
+
+    .btn-record.recording {
+      background: var(--neon-red);
+      color: #ffffff;
+      border-color: #ffffff;
+      box-shadow: 0 0 14px var(--neon-red);
+      animation: pulse-record 1s infinite alternate;
+    }
+
+    @keyframes pulse-record {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0.82; transform: scale(0.98); }
+    }
+
+    .rec-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--neon-red);
+      display: inline-block;
+      box-shadow: 0 0 6px var(--neon-red);
+    }
+
+    .btn-record.recording .rec-dot {
+      background: #ffffff;
+      box-shadow: 0 0 6px #ffffff;
+    }
+
+    .btn-info {
+      background: linear-gradient(135deg, rgba(255, 184, 0, 0.25), rgba(255, 42, 84, 0.25));
+      border-color: var(--neon-gold);
+      color: #fef08a;
+      box-shadow: 2px 2px 0 rgba(255, 184, 0, 0.65);
+      min-width: 30px;
+      font-weight: 900;
+    }
+
+    .btn-info:hover {
+      background: rgba(255, 184, 0, 0.35);
+      border-color: #fde047;
+      box-shadow: 2px 2px 0 var(--neon-gold);
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(0, 155, 58, 0.25));
+      border-color: var(--neon-cyan);
+      color: #cffafe;
+      box-shadow: 2px 2px 0 rgba(0, 240, 255, 0.6);
+    }
+
+    .btn-download:hover {
+      background: rgba(0, 240, 255, 0.32);
+      border-color: #67e8f9;
+      box-shadow: 2px 2px 0 var(--neon-cyan);
+    }
+
+    .btn.active {
+      background: rgba(255, 42, 84, 0.32);
+      border-color: var(--neon-red);
+      color: #ffe4e6;
+      box-shadow: 2px 2px 0 var(--neon-gold);
+    }
+
+    /* Palco principal do emulador */
+    .stage {
+      flex: 1;
+      width: 100%;
+      height: calc(var(--app-height, 100dvh) - 48px);
+      position: relative;
+      z-index: 5;
+      overflow: hidden;
+    }
+
+    #game {
+      width: 100% !important;
+      height: 100% !important;
+      background: transparent !important;
+    }
+
+    /* Deixa o fundo do EmulatorJS transparente para revelar o tema Roxo Synth-Grid ao redor da tela 4:3 e atrás dos botões mobile */
+    #game .ejs_parent,
+    .ejs_parent,
+    .ejs_game_parent,
+    .ejs_canvas_parent,
+    .ejs_game {
+      background: transparent !important;
+    }
+
+    /* Dimensiona o container do canvas diretamente em proporção 4:3 nativa (elimina barras pretas sem usar clip-path, economizando até 60% de VRAM e ativando Direct GPU Swapchain) */
+    @media (max-aspect-ratio: 1/1) {
+      #game .ejs_canvas_parent {
+        width: 100% !important;
+        height: calc(100vw * 0.75) !important;
+        margin: 0 auto !important;
+      }
+    }
+
+    @media (min-aspect-ratio: 1/1) {
+      #game .ejs_canvas_parent {
+        width: min(100%, calc((var(--app-height, 100dvh) - 48px) * 1.333333)) !important;
+        height: min(100%, calc(100vw * 0.75)) !important;
+        margin: 0 auto !important;
+      }
+    }
+
+    #game .ejs_canvas {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* Efeito CRT opcional leve via GPU */
+    .stage.crt::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 12;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%,
+        rgba(0, 0, 0, 0.3) 50%
+      );
+      background-size: 100% 4px;
+    }
+
+    /* Modais Estilo Janela Retro-OS Roxo */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(22, 8, 44, 0.82);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 90;
+      padding: 14px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-panel);
+      border: 2px solid var(--neon-purple);
+      box-shadow:
+        6px 6px 0 rgba(109, 40, 217, 0.65),
+        0 20px 60px rgba(15, 5, 32, 0.9);
+      border-radius: 8px;
+      max-width: 540px;
+      width: 100%;
+      max-height: 90dvh;
+      overflow-y: auto;
+      color: var(--text);
+    }
+
+    .modal-titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: linear-gradient(90deg, rgba(168, 85, 247, 0.35), rgba(255, 184, 0, 0.2));
+      border-bottom: 1px solid var(--border-cyber);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-weight: 800;
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .modal-titlebar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .window-dots {
+      display: inline-flex;
+      gap: 5px;
+    }
+
+    .window-dots i {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .window-dots i:nth-child(1) { background: var(--neon-red); }
+    .window-dots i:nth-child(2) { background: var(--neon-gold); }
+    .window-dots i:nth-child(3) { background: var(--neon-green); }
+
+    .modal-body {
+      padding: 16px;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .control-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--border-subtle);
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+    }
+
+    .control-item kbd {
+      background: rgba(30, 12, 60, 0.9);
+      border: 1px solid rgba(192, 132, 252, 0.5);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.74rem;
+      color: var(--neon-gold);
+      font-weight: 700;
+    }
+
+    .info-section {
+      margin-bottom: 14px;
+    }
+
+    .info-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-section h3 {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--neon-gold);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .info-section p, .info-section ul {
+      font-size: 0.83rem;
+      color: #f3e8ff;
+      line-height: 1.5;
+    }
+
+    .info-section ul {
+      padding-left: 18px;
+      margin-top: 4px;
+    }
+
+    .info-section li {
+      margin-bottom: 4px;
+    }
+
+    .info-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .info-badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(168, 85, 247, 0.25);
+      border: 1px solid rgba(216, 180, 254, 0.5);
+      color: #f3e8ff;
+    }
+
+    .modal-actions {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-note {
+      margin-top: 12px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    /* Ajustes da barra superior em telas Mobile */
+    @media (max-width: 680px) {
+      .topbar {
+        height: 44px;
+        min-height: 44px;
+        padding: 0 10px;
+        gap: 8px;
+      }
+
+      .stage {
+        height: calc(var(--app-height, 100dvh) - 44px);
+      }
+
+      .tag-cyber {
+        display: none;
+      }
+
+      .brand-title {
+        font-size: 0.88rem;
+        letter-spacing: 0.02em;
+      }
+
+      .btn-menu-trigger {
+        padding: 6px 10px;
+        font-size: 0.76rem;
+      }
+
+      .menu-dropdown {
+        width: min(290px, calc(100vw - 20px));
+      }
+
+      .controls-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="badge-de" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </span>
+        <span class="brand-title">Deutscher Fussball 26/27</span>
+        <span class="tag-cyber">[SNES • 60FPS]</span>
+      </div>
+
+      <div class="actions">
+        <!-- Botão rápido que só aparece quando estiver gravando partida -->
+        <button type="button" class="btn btn-record btn-record-quick" id="btn-record-quick" title="Parar gravação e salvar vídeo">
+          <span class="rec-dot"></span>
+          <span id="record-quick-label">00:00</span>
+        </button>
+
+        <!-- Botão único de Menu que concentra todas as opções -->
+        <button type="button" class="btn btn-menu-trigger" id="btn-menu-toggle" aria-expanded="false" aria-controls="options-menu">
+          <span id="menu-toggle-icon">☰</span>
+          <span>Menu</span>
+        </button>
+
+        <!-- Menu Dropdown com todas as opções -->
+        <nav class="menu-dropdown" id="options-menu" aria-label="Menu de opções do jogo">
+          <div class="menu-header-label">Opções &amp; Ferramentas</div>
+
+          <button type="button" class="btn btn-record menu-item" id="btn-record" title="Gravar partida em 60 FPS e baixar vídeo automaticamente ao parar">
+            <span class="menu-item-icon"><span class="rec-dot"></span></span>
+            <span id="record-label">Gravar Partida</span>
+            <span class="menu-item-badge">60 FPS</span>
+          </button>
+
+          <button type="button" class="btn btn-primary menu-item" id="btn-remap" title="Editar botões do Controle ou Teclado">
+            <span class="menu-item-icon">⚙️</span>
+            <span>Editar Botões</span>
+          </button>
+
+          <button type="button" class="btn menu-item" id="btn-controls" title="Ver mapa de comandos do jogo e inverter A/B e X/Y">
+            <span class="menu-item-icon">🎮</span>
+            <span>Comandos &amp; Inverter</span>
+          </button>
+
+          <a class="btn btn-download menu-item" id="btn-download-rom" href="rom/ISSD%20-%20Deutscher%20Fussball%202026-27%20Deluxe.zip" download="ISSD - Deutscher Fussball 2026-27 Deluxe.zip" title="Baixar ROM (.zip) para jogar em qualquer emulador de SNES">
+            <span class="menu-item-icon">⬇️</span>
+            <span>Baixar ROM (.ZIP)</span>
+            <span class="menu-item-badge">SNES</span>
+          </a>
+
+          <button type="button" class="btn btn-info menu-item" id="btn-info" title="Informações sobre o jogo e dicas">
+            <span class="menu-item-icon">❓</span>
+            <span>Sobre o Jogo &amp; Dicas</span>
+          </button>
+
+          <button type="button" class="btn menu-item" id="btn-crt" title="Alternar filtro TV de Tubo (Scanlines)">
+            <span class="menu-item-icon">📺</span>
+            <span>Filtro TV de Tubo (CRT)</span>
+            <span class="menu-item-badge" id="crt-badge">OFF</span>
+          </button>
+
+          <button type="button" class="btn menu-item" id="btn-fullscreen" title="Alternar Tela Cheia">
+            <span class="menu-item-icon">⛶</span>
+            <span>Tela Cheia</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="stage" id="stage">
+      <div id="game"></div>
+    </main>
+  </div>
+
+  <!-- Modal 1: Mapa de Comandos + Inversão Rápida -->
+  <div class="modal-backdrop" id="controls-modal" role="dialog" aria-modal="true" aria-labelledby="modal-controls-title">
+    <div class="modal">
+      <div class="modal-titlebar">
+        <div class="modal-titlebar-left">
+          <span class="window-dots"><i></i><i></i><i></i></span>
+          <span id="modal-controls-title">Controle Otimizado (Posição SNES)</span>
+        </div>
+        <button type="button" class="btn" id="btn-close-controls">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="controls-grid">
+          <div class="control-item">
+            <span><strong>B</strong> (Passe / Carrinho)</span>
+            <kbd>Baixo (✕ / A) • Z</kbd>
+          </div>
+          <div class="control-item">
+            <span><strong>Y</strong> (Chute / Corrida)</span>
+            <kbd>Esquerda (▢ / X) • A</kbd>
+          </div>
+          <div class="control-item">
+            <span><strong>A</strong> (Cruzamento / Balão)</span>
+            <kbd>Direita (◯ / B) • X</kbd>
+          </div>
+          <div class="control-item">
+            <span><strong>X</strong> (Lançamento / Tabela)</span>
+            <kbd>Cima (△ / Y) • S</kbd>
+          </div>
+          <div class="control-item">
+            <span><strong>L / R</strong> (Estratégia / Goleiro)</span>
+            <kbd>L1 / R1 • Q / W</kbd>
+          </div>
+          <div class="control-item">
+            <span><strong>Start / Select</strong></span>
+            <kbd>Enter / Shift</kbd>
+          </div>
+        </div>
+
+        <p class="modal-note">
+          🎮 <strong>Posição Física Real do Super Nintendo:</strong> O botão de baixo passa, o da esquerda chuta/corre, o da direita cruza e o de cima faz lançamento forte. Se o seu controle USB inverter a ordem dos botões, use os atalhos abaixo:
+        </p>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-primary" id="btn-open-ejs-remap">
+            ⚙️ Abrir Editor Completo de Botões
+          </button>
+          <button type="button" class="btn" id="btn-swap-abxy">
+            🔄 Inverter A↔B / X↔Y
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Informações do Jogo (?) -->
+  <div class="modal-backdrop" id="info-modal" role="dialog" aria-modal="true" aria-labelledby="modal-info-title">
+    <div class="modal">
+      <div class="modal-titlebar">
+        <div class="modal-titlebar-left">
+          <span class="window-dots"><i></i><i></i><i></i></span>
+          <span id="modal-info-title">Sobre o Jogo • Deutscher Fussball 26/27</span>
+        </div>
+        <button type="button" class="btn" id="btn-close-info">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="info-section">
+          <h3>⚽ Ficha Técnica</h3>
+          <p>
+            <strong>ISSD — Deutscher Fussball 2026-27 Deluxe</strong> é uma modificação (ROM Hack) sobre o clássico <em>International Superstar Soccer Deluxe</em> (Konami, Super Nintendo, 1995), trazendo os clubes do futebol alemão na temporada 2026/27.
+          </p>
+          <div class="info-badges">
+            <span class="info-badge">SNES • 16-Bit</span>
+            <span class="info-badge">Deutscher Fussball</span>
+            <span class="info-badge">Temporada 2026/27</span>
+            <span class="info-badge">60 FPS WebAssembly</span>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3>🏆 Destaques do Patch</h3>
+          <ul>
+            <li>Clubes tradicionais do <strong>Futebol Alemão (Temporada 2026/27)</strong> com elencos, uniformes, escudos e cores atualizados (Bayern München, Borussia Dortmund, Bayer Leverkusen, RB Leipzig, VfB Stuttgart, Eintracht Frankfurt, Werder Bremen, Wolfsburg, Borussia Mönchengladbach, Schalke 04, Hamburger SV e mais).</li>
+            <li>Gráficos de menu, tela inicial, placares e placas de gramado personalizadas da Bundesliga.</li>
+            <li>Jogabilidade clássica intacta com narração icônica de 16-bits.</li>
+          </ul>
+        </div>
+
+        <div class="info-section">
+          <h3>🔥 Dicas &amp; Comandos Especiais no ISSD</h3>
+          <ul>
+            <li><strong>Corrida (Sprint):</strong> Segure <kbd>Y</kbd> (botão da esquerda) enquanto conduz a bola.</li>
+            <li><strong>Tabela (Um-Dois):</strong> Segure <kbd>L</kbd> + aperte <kbd>B</kbd> para tocar e fazer o jogador disparar na frente.</li>
+            <li><strong>Chapéu / Drible Aéreo:</strong> Aperte <kbd>B + A</kbd> juntos ao dominar a bola.</li>
+            <li><strong>Sair com o Goleiro:</strong> Segure <kbd>X</kbd> (botão de cima) quando o adversário estiver atacando.</li>
+          </ul>
+        </div>
+
+        <div class="modal-actions">
+          <a class="btn btn-download" href="rom/ISSD%20-%20Deutscher%20Fussball%202026-27%20Deluxe.zip" download="ISSD - Deutscher Fussball 2026-27 Deluxe.zip">
+            ⬇️ Baixar ROM (.ZIP)
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Atualiza apenas a variável CSS de altura real do viewport (sem disparar evento recursivo!)
+    function updateAppHeightVar() {
+      const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      document.documentElement.style.setProperty("--app-height", vh + "px");
+    }
+
+    (function setupViewportTracking() {
+      updateAppHeightVar();
+      window.addEventListener("resize", updateAppHeightVar);
+      window.addEventListener("orientationchange", function () {
+        setTimeout(updateAppHeightVar, 100);
+        setTimeout(updateAppHeightVar, 350);
+      });
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", updateAppHeightVar);
+      }
+    })();
+
+    // Layout físico fiel ao Super Nintendo (Posicional: Sul=B, Oeste=Y, Leste=A, Norte=X)
+    function createSnesControllerLayout(swapFaceButtons) {
+      const btnSouth = swapFaceButtons ? "BUTTON_2" : "BUTTON_1"; // B no SNES (Passe)
+      const btnEast  = swapFaceButtons ? "BUTTON_1" : "BUTTON_2"; // A no SNES (Cruzamento)
+      const btnWest  = swapFaceButtons ? "BUTTON_4" : "BUTTON_3"; // Y no SNES (Chute/Corrida)
+      const btnNorth = swapFaceButtons ? "BUTTON_3" : "BUTTON_4"; // X no SNES (Lançamento)
+
+      const playerMap = {
+        0:  { value: "z",           value2: btnSouth },            // SNES B (Sul - Passe)
+        1:  { value: "a",           value2: btnWest },             // SNES Y (Oeste - Chute/Corrida)
+        2:  { value: "shift",       value2: "SELECT" },            // Select
+        3:  { value: "enter",       value2: "START" },             // Start
+        4:  { value: "up arrow",    value2: "DPAD_UP" },           // Cima
+        5:  { value: "down arrow",  value2: "DPAD_DOWN" },         // Baixo
+        6:  { value: "left arrow",  value2: "DPAD_LEFT" },         // Esquerda
+        7:  { value: "right arrow", value2: "DPAD_RIGHT" },        // Direita
+        8:  { value: "x",           value2: btnEast },             // SNES A (Leste - Cruzamento)
+        9:  { value: "s",           value2: btnNorth },            // SNES X (Norte - Lançamento)
+        10: { value: "q",           value2: "LEFT_TOP_SHOULDER" }, // SNES L
+        11: { value: "w",           value2: "RIGHT_TOP_SHOULDER" },// SNES R
+        12: { value: "tab",         value2: "LEFT_BOTTOM_SHOULDER" },
+        13: { value: "r",           value2: "RIGHT_BOTTOM_SHOULDER" },
+        14: { value: "",            value2: "LEFT_STICK" },
+        15: { value: "",            value2: "RIGHT_STICK" },
+        16: { value: "h",           value2: "LEFT_STICK_X:+1" },
+        17: { value: "f",           value2: "LEFT_STICK_X:-1" },
+        18: { value: "g",           value2: "LEFT_STICK_Y:+1" },
+        19: { value: "t",           value2: "LEFT_STICK_Y:-1" },
+        20: { value: "l",           value2: "RIGHT_STICK_X:+1" },
+        21: { value: "j",           value2: "RIGHT_STICK_X:-1" },
+        22: { value: "k",           value2: "RIGHT_STICK_Y:+1" },
+        23: { value: "i",           value2: "RIGHT_STICK_Y:-1" },
+        24: { value: "1" },
+        25: { value: "2" },
+        26: { value: "3" },
+        27: {},
+        28: {},
+        29: {}
+      };
+
+      return {
+        0: JSON.parse(JSON.stringify(playerMap)),
+        1: JSON.parse(JSON.stringify(playerMap)),
+        2: JSON.parse(JSON.stringify(playerMap)),
+        3: JSON.parse(JSON.stringify(playerMap))
+      };
+    }
+
+    // OTIMIZAÇÃO PROFUNDA DE HARDWARE, MEMÓRIA & GPU (DPR 1x + WebAudio Low-Latency + WebGL Direct Swapchain)
+    (function setupHardwareAcceleration() {
+      // 1. Trava devicePixelRatio em 1x para o WebGL do Emscripten:
+      // Telas mobile/Retina possuem DPR 2.5x~3.5x, o que obrigava a GPU a renderizar até 9x mais pixels (ex: 1140x2100)
+      // para um jogo nativo de SNES (256x224). Com DPR=1 + image-rendering: pixelated, reduzimos o uso de GPU e VRAM em até 88%!
+      try {
+        Object.defineProperty(window, "devicePixelRatio", {
+          get: function () { return 1; },
+          configurable: true
+        });
+      } catch (e) {}
+
+      // 2. Força o AudioContext a iniciar com hint "interactive" (menor buffer de hardware possível)
+      const OrigAudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (OrigAudioCtx) {
+        const LowLatencyAudioContext = function (opts) {
+          const mergedOpts = Object.assign({ latencyHint: "interactive" }, opts || {});
+          return new OrigAudioCtx(mergedOpts);
+        };
+        LowLatencyAudioContext.prototype = OrigAudioCtx.prototype;
+        Object.setPrototypeOf(LowLatencyAudioContext, OrigAudioCtx);
+        if (window.AudioContext) window.AudioContext = LowLatencyAudioContext;
+        if (window.webkitAudioContext) window.webkitAudioContext = LowLatencyAudioContext;
+      }
+
+      // 3. Otimiza os atributos do contexto WebGL (desativa buffers de profundidade/stencil/antialias desnecessários em 2D)
+      const origGetContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (type, attrs) {
+        if (type === "webgl" || type === "webgl2" || type === "experimental-webgl") {
+          attrs = Object.assign(
+            {
+              powerPreference: "high-performance",
+              antialias: false,
+              depth: false,
+              stencil: false,
+              alpha: false,
+              preserveDrawingBuffer: false
+            },
+            attrs || {}
+          );
+        }
+        return origGetContext.call(this, type, attrs);
+      };
+    })();
+
+    // Configuração de alta performance do EmulatorJS com boot automático e layout SNES real
+    window.EJS_player = "#game";
+    window.EJS_core = "snes";
+    window.EJS_gameName = "ISSD - Deutscher Fussball 2026-27 Deluxe";
+    window.EJS_gameUrl = encodeURI("rom/ISSD - Deutscher Fussball 2026-27 Deluxe.smc");
+    window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+    window.EJS_color = "#7c3aed";
+    window.EJS_startOnLoaded = true;
+    window.EJS_language = "pt-BR";
+    window.EJS_threads = false;
+    window.EJS_backgroundBlur = false;
+    window.EJS_defaultControls = createSnesControllerLayout(false);
+    window.EJS_defaultOptions = {
+      "snes9x_audio_interpolation": "linear",
+      "snes9x_overclock_cycles": "light",
+      "snes9x_reduce_sprite_flicker": "enabled"
+    };
+
+    // Ajustes de máxima performance no retroarch.cfg, montagem antecipada do <canvas> 4:3 e proteção dos controles mobile
+    function installEmulatorPatches(emu) {
+      if (!emu || emu._deutschePatched) return;
+      emu._deutschePatched = true;
+
+      if (typeof emu.handleResize === "function") {
+        const origHandleResize = emu.handleResize.bind(emu);
+        emu.handleResize = function () {
+          const res = origHandleResize();
+          if (this.touch && this.started && !this.paused && this.virtualGamepad) {
+            this.virtualGamepad.style.display = "";
+            this.virtualGamepad.style.opacity = "";
+          }
+          return res;
+        };
+      }
+
+      if (typeof emu.startGame === "function") {
+        const origStartGame = emu.startGame.bind(emu);
+        emu.startGame = function () {
+          try {
+            updateAppHeightVar();
+
+            // 1. Otimiza o retroarch.cfg antes do callMain() para sincronia limpa de áudio/vídeo e zero alocação de Rewind/Autosave
+            if (this.gameManager && this.gameManager.FS) {
+              const cfgPath = "/home/web_user/.config/retroarch/retroarch.cfg";
+              let baseCfg = "";
+              try {
+                baseCfg = new TextDecoder().decode(this.gameManager.FS.readFile(cfgPath));
+              } catch (e) {
+                if (typeof this.gameManager.getRetroArchCfg === "function") {
+                  baseCfg = this.gameManager.getRetroArchCfg();
+                }
+              }
+
+              baseCfg = baseCfg
+                .replace(/audio_latency\s*=\s*\d+/g, "audio_latency = 48")
+                .replace(/autosave_interval\s*=\s*\d+/g, "autosave_interval = 0");
+
+              const perfOverrides = [
+                "audio_latency = 48",
+                "audio_sync = true",
+                "audio_rate_control = true",
+                "audio_rate_control_delta = 0.005",
+                'audio_resampler = "nearest"',
+                "video_vsync = true",
+                "video_threaded = false",
+                "video_smooth = false",
+                "video_shader_enable = false",
+                "rewind_enable = false",
+                "run_ahead_enabled = false",
+                "vrr_runloop_enable = false"
+              ].join("\n") + "\n";
+
+              this.gameManager.writeFile(cfgPath, baseCfg + "\n" + perfOverrides);
+            }
+
+            // 2. Insere o <canvas> no container 4:3 (.ejs_canvas_parent) antes de Module.callMain() inicializar o WebGL
+            if (this.game && this.canvas) {
+              this.game.classList.remove("ejs_game");
+              this.game.classList.add("ejs_canvas_parent");
+              if (this.canvas.parentElement !== this.game) {
+                this.game.appendChild(this.canvas);
+              }
+            }
+          } catch (err) {
+            console.warn("Aviso no pre-start de performance:", err);
+          }
+          return origStartGame();
+        };
+      }
+    }
+
+    window.EJS_ready = function () {
+      installEmulatorPatches(window.EJS_emulator);
+    };
+
+    window.EJS_onGameStart = function () {
+      try {
+        const emu = window.EJS_emulator;
+        installEmulatorPatches(emu);
+
+        // 1. Aplica opções leves na CPU do core Snes9x (interpolação de áudio linear em vez de Gaussian pesado + overclock leve do Super NES)
+        if (emu && emu.gameManager && typeof emu.gameManager.setVariable === "function") {
+          emu.gameManager.setVariable("snes9x_audio_interpolation", "linear");
+          emu.gameManager.setVariable("snes9x_overclock_cycles", "light");
+          emu.gameManager.setVariable("snes9x_reduce_sprite_flicker", "enabled");
+        }
+
+        const AL = emu && emu.Module && emu.Module.AL;
+        const alCtx = AL && AL.currentCtx;
+        const audioCtx = alCtx && alCtx.audioCtx;
+
+        // 2. Ajusta o lookahead do OpenAL para 55ms (equilíbrio ideal entre baixa latência e zero underrun/AL_STOPPED)
+        if (AL) {
+          AL.QUEUE_LOOKAHEAD = 0.055;
+        }
+
+        // 3. Destrava o clock de áudio do OpenAL caso o navegador bloqueie Autoplay antes do 1º clique/toque,
+        // evitando que o RetroArch congele no Frame 4 (tela preta) no primeiro carregamento!
+        if (audioCtx && audioCtx.state === "suspended") {
+          const bootTime = performance.now();
+          Object.defineProperty(audioCtx, "currentTime", {
+            configurable: true,
+            get: function () {
+              return (performance.now() - bootTime) / 1000;
+            }
+          });
+
+          function unlockRealAudio() {
+            try {
+              delete audioCtx.currentTime;
+              if (alCtx && alCtx.sources) {
+                for (const id in alCtx.sources) {
+                  const src = alCtx.sources[id];
+                  if (src) {
+                    if (Array.isArray(src.audioQueue)) {
+                      while (src.audioQueue.length > 0) {
+                        const node = src.audioQueue.pop();
+                        try {
+                          node.stop();
+                          node.disconnect();
+                        } catch (e) {}
+                      }
+                    }
+                    if (src.bufQueue) {
+                      src.bufsProcessed = src.bufQueue.length;
+                    }
+                    src.bufStartTime = NaN;
+                    src.bufOffset = 0;
+                  }
+                }
+              }
+              audioCtx.resume?.();
+            } catch (e) {}
+            window.removeEventListener("pointerdown", unlockRealAudio, true);
+            window.removeEventListener("touchstart", unlockRealAudio, true);
+            window.removeEventListener("keydown", unlockRealAudio, true);
+          }
+
+          window.addEventListener("pointerdown", unlockRealAudio, true);
+          window.addEventListener("touchstart", unlockRealAudio, true);
+          window.addEventListener("keydown", unlockRealAudio, true);
+        }
+
+        // Retoma o AudioContext imediatamente ao voltar de outra aba ou desbloquear a tela do celular
+        function resyncAudioOnFocus() {
+          try {
+            if (document.visibilityState === "visible" && audioCtx) {
+              if (audioCtx.state === "suspended" && !Object.prototype.hasOwnProperty.call(audioCtx, "currentTime")) {
+                audioCtx.resume?.();
+              }
+            }
+          } catch (e) {}
+        }
+        document.addEventListener("visibilitychange", resyncAudioOnFocus);
+        window.addEventListener("focus", resyncAudioOnFocus);
+
+        // 4. Garante que os controles touch do mobile fiquem visíveis
+        [0, 100, 300].forEach(function (delay) {
+          setTimeout(function () {
+            if (emu && emu.touch && emu.virtualGamepad && !emu.paused) {
+              emu.virtualGamepad.style.display = "";
+              emu.virtualGamepad.style.opacity = "";
+            }
+          }, delay);
+        });
+
+        // 5. Aplica o mapeamento posicional fiel ao controle de SNES
+        if (emu && !localStorage.getItem("deutsche_snes_layout_v1")) {
+          emu.controls = createSnesControllerLayout(false);
+          if (typeof emu.setupKeys === "function") emu.setupKeys();
+          if (typeof emu.saveSettings === "function") emu.saveSettings();
+          if (typeof emu.checkSupportedOpts === "function") emu.checkSupportedOpts();
+          localStorage.setItem("deutsche_snes_layout_v1", "1");
+        }
+      } catch (e) {
+        console.warn("Não foi possível concluir ajustes pós-boot:", e);
+      }
+    };
+
+    // Controles da Interface + Menu Dropdown + Gravador de Partidas com Download Automático
+    (function () {
+      const stage = document.getElementById("stage");
+      const btnMenuToggle = document.getElementById("btn-menu-toggle");
+      const menuToggleIcon = document.getElementById("menu-toggle-icon");
+      const optionsMenu = document.getElementById("options-menu");
+      const btnRecord = document.getElementById("btn-record");
+      const recordLabel = document.getElementById("record-label");
+      const btnRecordQuick = document.getElementById("btn-record-quick");
+      const recordQuickLabel = document.getElementById("record-quick-label");
+      const btnDownloadRom = document.getElementById("btn-download-rom");
+      const btnCrt = document.getElementById("btn-crt");
+      const crtBadge = document.getElementById("crt-badge");
+      const btnFullscreen = document.getElementById("btn-fullscreen");
+      const btnControls = document.getElementById("btn-controls");
+      const btnInfo = document.getElementById("btn-info");
+      const btnRemap = document.getElementById("btn-remap");
+      const btnOpenEjsRemap = document.getElementById("btn-open-ejs-remap");
+      const btnSwapAbxy = document.getElementById("btn-swap-abxy");
+      const btnCloseControls = document.getElementById("btn-close-controls");
+      const btnCloseInfo = document.getElementById("btn-close-info");
+      const controlsModal = document.getElementById("controls-modal");
+      const infoModal = document.getElementById("info-modal");
+      let isSwapped = false;
+
+      // Controle do Menu Dropdown
+      function closeMenu() {
+        optionsMenu.classList.remove("open");
+        btnMenuToggle.classList.remove("open");
+        btnMenuToggle.setAttribute("aria-expanded", "false");
+        menuToggleIcon.textContent = "☰";
+      }
+
+      function toggleMenu(e) {
+        if (e) e.stopPropagation();
+        const isOpen = optionsMenu.classList.toggle("open");
+        btnMenuToggle.classList.toggle("open", isOpen);
+        btnMenuToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        menuToggleIcon.textContent = isOpen ? "✕" : "☰";
+      }
+
+      btnMenuToggle.addEventListener("click", toggleMenu);
+
+      document.addEventListener("pointerdown", function (e) {
+        if (
+          optionsMenu.classList.contains("open") &&
+          !optionsMenu.contains(e.target) &&
+          !btnMenuToggle.contains(e.target)
+        ) {
+          closeMenu();
+        }
+      });
+
+      btnDownloadRom.addEventListener("click", function () {
+        setTimeout(closeMenu, 150);
+      });
+
+      // Estado do Gravador de Partidas
+      let mediaRecorder = null;
+      let recordedChunks = [];
+      let recordingTimer = null;
+      let recordingSeconds = 0;
+      let recordingCleanup = null;
+
+      function formatDuration(sec) {
+        const m = String(Math.floor(sec / 60)).padStart(2, "0");
+        const s = String(sec % 60).padStart(2, "0");
+        return m + ":" + s;
+      }
+
+      function buildDownloadFileName(ext) {
+        const now = new Date();
+        const dd = String(now.getDate()).padStart(2, "0");
+        const mm = String(now.getMonth() + 1).padStart(2, "0");
+        const yyyy = now.getFullYear();
+        const hh = String(now.getHours()).padStart(2, "0");
+        const min = String(now.getMinutes()).padStart(2, "0");
+        return "ISSD - Deutscher Fussball 2026-27 - " + dd + "-" + mm + "-" + yyyy + " " + hh + "h" + min + "." + ext;
+      }
+
+      function getSupportedRecordingMime() {
+        const candidates = [
+          { mime: "video/mp4;codecs=avc1.42E01E,mp4a.40.2", ext: "mp4" },
+          { mime: "video/mp4", ext: "mp4" },
+          { mime: "video/webm;codecs=vp9,opus", ext: "webm" },
+          { mime: "video/webm;codecs=vp8,opus", ext: "webm" },
+          { mime: "video/webm", ext: "webm" }
+        ];
+        for (let i = 0; i < candidates.length; i++) {
+          if (window.MediaRecorder && MediaRecorder.isTypeSupported(candidates[i].mime)) {
+            return candidates[i];
+          }
+        }
+        return { mime: "", ext: "webm" };
+      }
+
+      function startRecording() {
+        const emu = window.EJS_emulator;
+        const sourceCanvas = (emu && emu.canvas) || document.querySelector(".ejs_canvas");
+        if (!sourceCanvas) {
+          alert("Aguarde o jogo iniciar para começar a gravação.");
+          return;
+        }
+
+        closeMenu();
+
+        // Captura diretamente a stream do canvas 4:3 (zero cópia de CPU/2D Canvas por frame durante a gravação!)
+        let stream = null;
+        if (emu && typeof emu.collectScreenRecordingMediaTracks === "function") {
+          stream = emu.collectScreenRecordingMediaTracks(sourceCanvas, 60);
+        }
+        if (!stream) {
+          stream = sourceCanvas.captureStream(60);
+        }
+
+        const formatInfo = getSupportedRecordingMime();
+        const options = { videoBitsPerSecond: 6000000 };
+        if (formatInfo.mime) {
+          options.mimeType = formatInfo.mime;
+        }
+
+        recordedChunks = [];
+        try {
+          mediaRecorder = new MediaRecorder(stream, options);
+        } catch (err) {
+          mediaRecorder = new MediaRecorder(stream);
+        }
+
+        mediaRecorder.addEventListener("dataavailable", function (e) {
+          if (e.data && e.data.size > 0) {
+            recordedChunks.push(e.data);
+          }
+        });
+
+        mediaRecorder.addEventListener("stop", function () {
+          if (recordingCleanup) recordingCleanup();
+
+          const blob = new Blob(recordedChunks, { type: formatInfo.mime || "video/webm" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.style.display = "none";
+          a.href = url;
+          a.download = buildDownloadFileName(formatInfo.ext);
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function () {
+            URL.revokeObjectURL(url);
+            a.remove();
+          }, 2000);
+        });
+
+        recordingCleanup = function () {
+          clearInterval(recordingTimer);
+          recordingTimer = null;
+          recordingSeconds = 0;
+          btnRecord.classList.remove("recording");
+          btnRecordQuick.classList.remove("recording");
+          recordLabel.textContent = "Gravar Partida";
+          recordQuickLabel.textContent = "00:00";
+        };
+
+        mediaRecorder.start(1000);
+        btnRecord.classList.add("recording");
+        btnRecordQuick.classList.add("recording");
+        recordingSeconds = 0;
+        recordLabel.textContent = "Parar Gravação (00:00)";
+        recordQuickLabel.textContent = "Parar (00:00)";
+        recordingTimer = setInterval(function () {
+          recordingSeconds++;
+          const dur = formatDuration(recordingSeconds);
+          recordLabel.textContent = "Parar Gravação (" + dur + ")";
+          recordQuickLabel.textContent = "Parar (" + dur + ")";
+        }, 1000);
+      }
+
+      function stopRecording() {
+        closeMenu();
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
+          mediaRecorder.stop();
+        }
+      }
+
+      function toggleRecording() {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+          stopRecording();
+        } else {
+          startRecording();
+        }
+      }
+
+      btnRecord.addEventListener("click", toggleRecording);
+      btnRecordQuick.addEventListener("click", toggleRecording);
+
+      function closeAllModals() {
+        controlsModal.classList.remove("open");
+        infoModal.classList.remove("open");
+      }
+
+      function openNativeControlSettings() {
+        closeMenu();
+        closeAllModals();
+        const emu = window.EJS_emulator;
+        if (!emu) return;
+
+        if (emu.controlMenu) {
+          const isHidden = emu.controlMenu.style.display === "none" || !emu.controlMenu.style.display;
+          emu.controlMenu.style.display = isHidden ? "" : "none";
+          return;
+        }
+
+        const controlBtn = document.querySelector(".ejs_menu_button");
+        if (controlBtn) controlBtn.click();
+      }
+
+      btnRemap.addEventListener("click", openNativeControlSettings);
+      btnOpenEjsRemap.addEventListener("click", openNativeControlSettings);
+
+      btnSwapAbxy.addEventListener("click", function () {
+        isSwapped = !isSwapped;
+        const emu = window.EJS_emulator;
+        if (emu) {
+          emu.controls = createSnesControllerLayout(isSwapped);
+          if (typeof emu.setupKeys === "function") emu.setupKeys();
+          if (typeof emu.saveSettings === "function") emu.saveSettings();
+        }
+        btnSwapAbxy.textContent = isSwapped
+          ? "✅ A↔B / X↔Y Invertidos (Voltar ao Padrão)"
+          : "🔄 Inverter A↔B / X↔Y";
+      });
+
+      btnCrt.addEventListener("click", function () {
+        const active = stage.classList.toggle("crt");
+        btnCrt.classList.toggle("active", active);
+        if (crtBadge) crtBadge.textContent = active ? "ON" : "OFF";
+        closeMenu();
+      });
+
+      btnFullscreen.addEventListener("click", function () {
+        closeMenu();
+        const elem = document.documentElement;
+        if (!document.fullscreenElement) {
+          elem.requestFullscreen?.();
+        } else {
+          document.exitFullscreen?.();
+        }
+      });
+
+      btnControls.addEventListener("click", function () {
+        closeMenu();
+        infoModal.classList.remove("open");
+        controlsModal.classList.add("open");
+      });
+
+      btnInfo.addEventListener("click", function () {
+        closeMenu();
+        controlsModal.classList.remove("open");
+        infoModal.classList.add("open");
+      });
+
+      btnCloseControls.addEventListener("click", closeAllModals);
+      btnCloseInfo.addEventListener("click", closeAllModals);
+
+      controlsModal.addEventListener("click", function (e) {
+        if (e.target === controlsModal) closeAllModals();
+      });
+
+      infoModal.addEventListener("click", function (e) {
+        if (e.target === infoModal) closeAllModals();
+      });
+
+      window.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          closeMenu();
+          closeAllModals();
+        }
+      });
+    })();
+  </script>
+  <script src="https://cdn.emulatorjs.org/stable/data/loader.js" async></script>
+</body>
+</html>

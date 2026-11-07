@@ -1,0 +1,16 @@
+{
+  "name": "deutscherfussball",
+  "version": "1.0.0",
+  "description": "ISSD - Deutscher Fussball 2026/27 Deluxe (SNES Web Player em 60 FPS)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/martynrangelfigueiredo/deutscherfussball.git"
+  },
+  "homepage": "https://deutscherfussball.martynfigueiredo.com",
+  "license": "GPL-3.0",
+  "private": true
+}
