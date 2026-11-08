@@ -1087,7 +1087,8 @@
             };
           }
 
-          // Enquanto o AudioContext estiver suspenso antes do 1º clique/toque, avança o relógio sem alocar AudioBufferSourceNodes fantasmas no WebAudio
+          // Enquanto o AudioContext estiver suspenso antes do 1º clique/toque, avança o relógio sem alocar AudioBufferSourceNodes fantasmas no WebAudio,
+          // e quando estiver rodando, aplica controle adaptativo suave de playbackRate para nunca esgotar o pool de buffers do OpenAL
           if (typeof AL.scheduleSourceAudio === "function") {
             const origScheduleSourceAudio = AL.scheduleSourceAudio.bind(AL);
             AL.scheduleSourceAudio = function (src, lookahead) {
@@ -1095,9 +1096,42 @@
                 AL.updateSourceTime(src);
                 return;
               }
+              if (src && src.bufQueue) {
+                const pending = src.bufQueue.length - src.bufsProcessed;
+                if (pending >= 5) src.playbackRate = 1.02;
+                else if (pending === 4) src.playbackRate = 1.006;
+                else src.playbackRate = 1.0;
+              }
               return origScheduleSourceAudio(src, lookahead);
             };
           }
+        }
+
+        // 2b. Otimiza o GamepadHandler do EmulatorJS: substitui o setTimeout(10ms) de 100Hz (que aloca objetos e closures mesmo sem controle conectado)
+        // por leitura sincronizada com requestAnimationFrame ativa apenas quando houver um Gamepad físico conectado
+        if (emu && emu.gamepad && emu.gamepad.timeout && !emu.gamepad._deutscheRafPatched) {
+          emu.gamepad._deutscheRafPatched = true;
+          clearTimeout(emu.gamepad.timeout);
+          const gp = emu.gamepad;
+          const boundUpdate = gp.updateGamepadState.bind(gp);
+          let hasConnectedGamepad = false;
+          const refreshGamepadPresence = function () {
+            const list = gp.getGamepads ? gp.getGamepads() : [];
+            hasConnectedGamepad = false;
+            for (let i = 0; i < list.length; i++) {
+              if (list[i]) {
+                hasConnectedGamepad = true;
+                break;
+              }
+            }
+          };
+          refreshGamepadPresence();
+          window.addEventListener("gamepadconnected", function () { hasConnectedGamepad = true; });
+          window.addEventListener("gamepaddisconnected", refreshGamepadPresence);
+          (function pollGamepadOnFrame() {
+            if (hasConnectedGamepad) boundUpdate();
+            requestAnimationFrame(pollGamepadOnFrame);
+          })();
         }
 
         // 3. Destrava o clock de áudio do OpenAL caso o navegador bloqueie Autoplay antes do 1º clique/toque,
@@ -1459,6 +1493,13 @@
           closeAllModals();
         }
       });
+
+      // Registra Service Worker para cache local instantâneo da ROM e do motor WebAssembly (cdn.emulatorjs.org)
+      if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("sw.js").catch(function () {});
+        });
+      }
     })();
   </script>
   <script src="https://cdn.emulatorjs.org/stable/data/loader.js" async></script>
